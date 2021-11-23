@@ -403,4 +403,4 @@ We overviewed the key components of OpenLane, the only open-source EDA tool whic
 
 
 # Acknowledgment
-I am extremely thankful to Dr. Ramesh Kini M Associate Professor NITK, Surathkal for sharing expertise, valuable guidance and encouragement and also providing this wonderful Internship opportunity to me.
+I am extremely thankful to Dr. Ramesh Kini M Associate Professor NITK, Surathkal for sharing expertise, valuable guidance and encouragement.
