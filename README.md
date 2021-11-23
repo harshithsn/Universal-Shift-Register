@@ -67,8 +67,6 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 
 ![tb_wave_after_synth](https://user-images.githubusercontent.com/63975346/142900601-8cf55e84-14fe-4403-8acb-b41f88e2e04c.PNG)
 
-*Graphviz representation of design.*
-![#1 usr_hs](https://user-images.githubusercontent.com/63975346/142900991-93ffb20e-5036-44e0-aa2e-be6fdd5a7d5d.png)
 
 
 | Index  | Input | Function | Output |
@@ -120,4 +118,82 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 | Index42 | `cvcrc.sky130A`\, `usr_nbit.cdl`\, `cvc_usr_nbit.log` | Generating Final Summary Report | `final_summary_report.csv` |
 
 
+# OpenLane VLSI Design Execution.
+flow.tcl -design <design> -src <verilog file path> -init_design_config
+# Non-Interactive Mode
+flow.tcl -design <design> -tag <tag>
+
+# Interactive Mode
+flow.tcl -design <design> -tag <tag> -interactive
+
+| Code | Corresponding Index |
+ |     :---:      |     :---:      |
+| `run_synthesis` | Index1 – Index2 |
+| `run_floorplan` | Index3 – Index7 |
+| `run_placement` | Index8 – Index12 |
+| `run_cts` | Index13 – Index15 (Screenshot) |
+| `run_resizer_timing` | Index15(Resizer) – Index17 |
+| `run_routing`| Index18 – Index24 |
+| `write_powered_verilog` | Index25 – Index26 |
+| `set_netlist $::env(lvs_result_file_tag).powered.v` | set variable to write Verilog. |
+| `run_magic` | Index27 – Index31 |
+| `run_klayout` | Index32 – Index33 |
+| `run_klayout_gds_xor` | Index34 – Index36 |
+| `run_magic_spice_export` | Index37 |
+| `run_lvs` | Index38 |
+| `run_magic_drc` | Index39 |
+| `run_klayout_drc` | |
+| `run_antenna_check` | Index40 |
+| `run_lef_cvc` | Index41 – Index42 |
+| `calc_total_runtime` | |
+| `generate_final_summary_report` | |
+
+ # Synthesis
+`Yosys`, is a Verilog RTL synthesis framework that generates gate level netlist from verilog code and `abc` performs technology mapping. The resulting netlist is used by the `OpenSTA`  tool for static timing analysis, generating timing reports. OpenLane EDA tool comes with different synthesis scripts, Synthesis Exploration helps in picking the best synthesis strategy which will provide a netlist functionally same as input design.
  
+*Graphviz representation of design.*
+![#1 usr_hs](https://user-images.githubusercontent.com/63975346/142900991-93ffb20e-5036-44e0-aa2e-be6fdd5a7d5d.png)
+
+# Floorplan
+For Good placement, the most important value would be `FP_CORE_UTIL` (area occupied by the standard cells, macros, and other cells), `FP_ASPECT_RATIO` (This ratio is determined by the horizontal routing resources to vertical routing resources (or) height/width). Before we proceed with floor planning, we need to ensure that all inputs we need for the floorplan are prepared properly. Because it deals with placement of I/O pads, macros, power, and ground structure. In addition to the macros core area, its rows (which is essential during placement) and its tracks (which is essential during routing) are defined by `init_fp` Macro inputs and outputs ports are placed by `ioplacer` and the `pdn` tool generates the power distribution network. `tapcell` tool used to insert `welltap` and `decap` cells in the floorplan.
+ 
+ `usr_nbit` Floorplan The visible structure is tapcells and decap cells.
+ At bottom there are Stdcells which are need to be placed.
+ 
+ ![#2 fp](https://user-images.githubusercontent.com/63975346/142964537-f43b7af7-e801-47a2-897a-151d36964ba2.PNG)
+ 
+ This is io Placement viewed using Klayout.
+ 
+ ![#3 io](https://user-images.githubusercontent.com/63975346/142964860-d0f4584f-bf22-4469-bd4e-e6117260480c.png)
+
+ Power Network Distribution.
+ 
+ ![#4 pdn](https://user-images.githubusercontent.com/63975346/142965040-ad9944ff-05b2-4cb1-88cc-fdc1ff9b44a1.PNG)
+
+
+# Placement
+Core area and rows of macros were determined in Floorplanning. The role of placement is to determine the locations of standard cells present in the netlist by placing these standard cells inside the core area of IC. A logical representation of the cells is in the Netlist. A tool places cells at the desired location based on the physical location of cells in LEF. Placement of cells is most important and challenging, because good placement minimises area and also ensures good routing. Lib file contains a number of the same kind of cells, so the tool picks the cell considering logic present in netlist and input constraints.
+The most important configure parameter for placement is `PL_TARGET_DESNSITY` which describes how close or how far cells are from each other and is easy to set. `PL_TARGET_DESNSITY` ranges from 0.0 to 1.0. It is the measure of how widely the cells would spread throughout the core area. The `RePLace` tool performs global placement. Resizer tool performs optional optimizations on the design. The `OpenPhySyn` tool performs timing optimizations on the design. `OpenDP` this tool legalizes global components by performing detailed placement.
+ 
+ Global Placement
+ 
+ ![#6 gb placement](https://user-images.githubusercontent.com/63975346/142964947-4fbd4f26-38e2-408c-adb8-715a7c496f14.PNG)
+
+ Detailed Placement
+ 
+ ![#7 placement](https://user-images.githubusercontent.com/63975346/142964968-3ace609a-0155-422e-b7fa-a63b073ab20a.PNG)
+
+ 
+
+# Clock Tree Synthesis
+Clock Tree Synthesis ensures that all of the clock signals in a design are distributed evenly to all sequential circuits in a design. In CTS, skew and latency are minimized. The clock tree constraints and the placement data will be given as input to CTS. Output of CTS are Latency and skew report. CTS def, timing report and clock structure report is also generated after CTS. Clock tree building and clock tree balancing are done by CTS. `TritonCTS` tool is used to synthesize the clock distribution network (the clock tree). `TritonCTS` uses H-Tree Toplogy.
+
+ # Routing 
+After CTS, routing is the stage at which the necessary interconnections are determined by finding the exact paths for each network. By the end of CTS, the tool will know the locations of cells, pins, IO ports, and pads. The logical connectivity and design rules are defined by netlist and technology files respectively and are available to the tool. Routing is the process after CTS in which interconnection of the macro pins, the standard cells, the pins of the block boundary, the pads of the chip boundary using technology files. All connections defined by the netlist are electrically connected using metal and vias in the routing stage. So, basically, routing is allocating a set of metal layers (wires) in the routing space that makes interconnections between all the nets in the netlist by ensuring certain design rules for the metals and vias. `FastRoute` tool performs global routing to generate a guide file for the detailed router. `CU-GR` is another option for performing global routing. The `TritonRoute` tool performs detailed routing. `SPEF-Extractor`, performs SPEF extraction.
+
+# Design Checks
+DRC checks are performed using `Magic` and `Klayout`. LVS Checks are performed using `Netgen`. Antenna Checks are performed by `Magic` and `CVC` performs Circuit Validity Checks.
+
+# GDS II Generation 
+After OpenLane execution the main outputs of the flow, are mainly GDSII and LEF views, which can be used in bigger designs and by foundry. `Magic` tool is used to stream out the final GDSII layout file from the routed def. `Klayout` tool is used to stream out the final GDSII layout file from the routed def as a back-up.
+
