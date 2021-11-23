@@ -155,9 +155,51 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 *Graphviz representation of design.*
 ![#1 usr_hs](https://user-images.githubusercontent.com/63975346/142900991-93ffb20e-5036-44e0-aa2e-be6fdd5a7d5d.png)
 
+```
+=== usr_nbit ===
+
+   Number of wires:                 26
+   Number of wire bits:             33
+   Number of public wires:           7
+   Number of public wire bits:      14
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 23
+     sky130_fd_sc_hd__a32o_2         4
+     sky130_fd_sc_hd__buf_1          2
+     sky130_fd_sc_hd__dfxtp_2        4
+     sky130_fd_sc_hd__inv_2          3
+     sky130_fd_sc_hd__mux2_1         4
+     sky130_fd_sc_hd__nor2_2         1
+     sky130_fd_sc_hd__o221a_2        4
+     sky130_fd_sc_hd__or2_2          1
+
+   Chip area for module '\usr_nbit': 251.491200
+```
+
+Cells Description
+```
+sky130_fd_sc_hd__a32o_2  --> X = (A1 | A2) & (B1 | B2) & C1       --> 4.14 x 2.72 um
+sky130_fd_sc_hd__buf_1   --> X = A                                --> 1.38 x 2.72 um
+sky130_fd_sc_hd__dfxtp_2 --> X <= A                               --> 7.82 x 2.72 um
+sky130_fd_sc_hd__inv_2   --> X = ~A                               --> 1.38 x 2.72 um
+sky130_fd_sc_hd__mux2_1  --> X = (S & A0) | (S & A1)              --> 4.14 x 2.72 um
+sky130_fd_sc_hd__nor2_2  --> Y = ~(A | B)                         --> 2.30 x 2.72 um
+sky130_fd_sc_hd__o221a_2 --> X = (A1 & A2 & A3) | (B1 & B2)       --> 4.14 x 2.72 um
+sky130_fd_sc_hd__or2_2   --> X = A | B                            --> 2.30 x 2.72 um
+```
+   
+
 # Floorplan
 For Good placement, the most important value would be `FP_CORE_UTIL` (area occupied by the standard cells, macros, and other cells), `FP_ASPECT_RATIO` (This ratio is determined by the horizontal routing resources to vertical routing resources (or) height/width). Before we proceed with floor planning, we need to ensure that all inputs we need for the floorplan are prepared properly. Because it deals with placement of I/O pads, macros, power, and ground structure. In addition to the macros core area, its rows (which is essential during placement) and its tracks (which is essential during routing) are defined by `init_fp` Macro inputs and outputs ports are placed by `ioplacer` and the `pdn` tool generates the power distribution network. `tapcell` tool used to insert `welltap` and `decap` cells in the floorplan.
  
+ ```
+ Floorplanned on a die area of 0.0 0.0 39.995 50.715 (microns). 
+ Floorplanned on a core area of 5.52 10.88 34.04 38.08 (microns).
+ Core area width: 28.52
+ Core area height: 27.199999999999996
+ ```
  `usr_nbit` Floorplan The visible structure is tapcells and decap cells.
  At bottom there are Stdcells which are need to be placed.
  
@@ -170,6 +212,14 @@ For Good placement, the most important value would be `FP_CORE_UTIL` (area occup
  Power Network Distribution.
  
  ![#4 pdn](https://user-images.githubusercontent.com/63975346/142965040-ad9944ff-05b2-4cb1-88cc-fdc1ff9b44a1.PNG)
+ ```
+ Stdcell Rails
+      Layer: met1 -  width: 0.480  pitch: 2.720  offset: 0.000 
+    Straps
+      Layer: met4 -  width: 1.600  pitch: 9.507  offset: 4.753 
+      Layer: met5 -  width: 1.600  pitch: 9.067  offset: 4.533 
+    Connect: {met4 met5} {met1 met4}
+ ```
 
 
 # Placement
@@ -192,11 +242,126 @@ Clock Tree Synthesis ensures that all of the clock signals in a design are distr
  # Routing 
 After CTS, routing is the stage at which the necessary interconnections are determined by finding the exact paths for each network. By the end of CTS, the tool will know the locations of cells, pins, IO ports, and pads. The logical connectivity and design rules are defined by netlist and technology files respectively and are available to the tool. Routing is the process after CTS in which interconnection of the macro pins, the standard cells, the pins of the block boundary, the pads of the chip boundary using technology files. All connections defined by the netlist are electrically connected using metal and vias in the routing stage. So, basically, routing is allocating a set of metal layers (wires) in the routing space that makes interconnections between all the nets in the netlist by ensuring certain design rules for the metals and vias. `FastRoute` tool performs global routing to generate a guide file for the detailed router. `CU-GR` is another option for performing global routing. The `TritonRoute` tool performs detailed routing. `SPEF-Extractor`, performs SPEF extraction.
 
+After Routing
+
+![usr_nbit def](https://user-images.githubusercontent.com/63975346/142967039-514c2a31-2637-42f4-8669-1fea74a2d9d5.png)
+
+```
+complete detail routing
+total wire length = 934 um
+total wire length on LAYER li1 = 0 um
+total wire length on LAYER met1 = 414 um
+total wire length on LAYER met2 = 454 um
+total wire length on LAYER met3 = 65 um
+total wire length on LAYER met4 = 0 um
+total wire length on LAYER met5 = 0 um
+total number of vias = 266
+up-via summary (total 266):
+
+----------------------
+ FR_MASTERSLICE      0
+            li1    124
+           met1    131
+           met2     11
+           met3      0
+           met4      0
+----------------------
+                   266
+```
+
+Static Timming Analysis after Routing.
+```
+Startpoint: _39_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _39_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ _39_/CLK (sky130_fd_sc_hd__dfxtp_1)
+                  0.03    0.18    0.18 ^ _39_/Q (sky130_fd_sc_hd__dfxtp_1)
+     3    0.00                           net10 (net)
+                  0.03    0.00    0.18 ^ _23_/B1 (sky130_fd_sc_hd__o221a_1)
+                  0.03    0.08    0.26 ^ _23_/X (sky130_fd_sc_hd__o221a_1)
+     1    0.00                           _06_ (net)
+                  0.03    0.00    0.26 ^ _39_/D (sky130_fd_sc_hd__dfxtp_1)
+                                  0.26   data arrival time
+
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00   clock reconvergence pessimism
+                                  0.00 ^ _39_/CLK (sky130_fd_sc_hd__dfxtp_1)
+                         -0.02   -0.02   library hold time
+                                 -0.02   data required time
+-----------------------------------------------------------------------------
+                                 -0.02   data required time
+                                 -0.26   data arrival time
+-----------------------------------------------------------------------------
+                                  0.28   slack (MET)
+
+
+Startpoint: select[0] (input port clocked by clk)
+Endpoint: _39_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          2.00    2.00 v input external delay
+                  0.01    0.00    2.00 v select[0] (in)
+     1    0.00                           select[0] (net)
+                  0.01    0.00    2.00 v input8/A (sky130_fd_sc_hd__clkbuf_1)
+                  0.07    0.15    2.15 v input8/X (sky130_fd_sc_hd__clkbuf_1)
+     2    0.00                           net8 (net)
+                  0.07    0.00    2.15 v _25_/A (sky130_fd_sc_hd__clkbuf_2)
+                  0.04    0.18    2.33 v _25_/X (sky130_fd_sc_hd__clkbuf_2)
+     5    0.00                           _12_ (net)
+                  0.04    0.00    2.33 v _26_/A (sky130_fd_sc_hd__inv_2)
+                  0.17    0.15    2.48 ^ _26_/Y (sky130_fd_sc_hd__inv_2)
+     5    0.02                           _00_ (net)
+                  0.17    0.00    2.48 ^ _28_/A (sky130_fd_sc_hd__nor2_2)
+                  0.06    0.12    2.59 v _28_/Y (sky130_fd_sc_hd__nor2_2)
+     4    0.01                           _14_ (net)
+                  0.06    0.00    2.59 v _29_/B2 (sky130_fd_sc_hd__a32o_1)
+                  0.07    0.37    2.96 v _29_/X (sky130_fd_sc_hd__a32o_1)
+     1    0.00                           _01_ (net)
+                  0.07    0.00    2.96 v _34_/A0 (sky130_fd_sc_hd__mux2_1)
+                  0.12    0.64    3.60 v _34_/X (sky130_fd_sc_hd__mux2_1)
+     1    0.00                           _17_ (net)
+                  0.12    0.00    3.60 v _23_/A1 (sky130_fd_sc_hd__o221a_1)
+                  0.09    0.49    4.08 v _23_/X (sky130_fd_sc_hd__o221a_1)
+     1    0.00                           _06_ (net)
+                  0.09    0.00    4.08 v _39_/D (sky130_fd_sc_hd__dfxtp_1)
+                                  4.08   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ _39_/CLK (sky130_fd_sc_hd__dfxtp_1)
+                         -0.30    9.70   library setup time
+                                  9.70   data required time
+-----------------------------------------------------------------------------
+                                  9.70   data required time
+                                 -4.08   data arrival time
+-----------------------------------------------------------------------------
+                                  5.62   slack (MET)
+
+
+
+```
+
+
 # Design Checks
 DRC checks are performed using `Magic` and `Klayout`. LVS Checks are performed using `Netgen`. Antenna Checks are performed by `Magic` and `CVC` performs Circuit Validity Checks.
 
 # GDS II Generation 
 After OpenLane execution the main outputs of the flow, are mainly GDSII and LEF views, which can be used in bigger designs and by foundry. `Magic` tool is used to stream out the final GDSII layout file from the routed def. `Klayout` tool is used to stream out the final GDSII layout file from the routed def as a back-up.
+![usr_nbit gds](https://user-images.githubusercontent.com/63975346/142967009-a7a8531b-32fd-4f8f-9411-37c0aa6b234d.png)
+
 
 # Conclusion
 We overviewed the key components of OpenLane, the only open-source EDA tool which is automated for manufacturing IC’s. We overviewed how OpenLane combines logic synthesis, placement and routing, as well as physical verification, with a manufacturing-ready open process development kit (PDK), we saw how EDA Tool practically performs IC design flow. OpenLane provides us to configure parameters by which optimal config for design can be found. It also has an option for regression run and various parameters can be compared. We executed RTL to GDSII Flow of 4-bit universal shift register. The final goal of our overall work is to understand VLSI design flow with a practical approach using the EDA tool. We can achieve 0 negative slack by varying various configuration parameters and changing clock period. Currently, OpenLane is the only open-source flow developed by Google and SkyWater which can be readily used to almost fully automate chip integration for the open PDK. This tool is useful for students who need practical experience in chip design.
