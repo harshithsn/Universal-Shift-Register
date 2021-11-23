@@ -67,7 +67,7 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 
 ![tb_wave_after_synth](https://user-images.githubusercontent.com/63975346/142900601-8cf55e84-14fe-4403-8acb-b41f88e2e04c.PNG)
 
-
+# OpenLane Flow
 
 | Index  | Input | Function | Output |
 |     :---:      |     :---:      |     :---:      |     :---:      |
@@ -119,12 +119,13 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 
 
 # OpenLane VLSI Design Execution.
-flow.tcl -design <design> -src <verilog file path> -init_design_config
+`flow.tcl -design <design> -src <verilog file path> -init_design_config`. This code prepare design for execution.
+
 # Non-Interactive Mode
-flow.tcl -design <design> -tag <tag>
+`flow.tcl -design <design> -tag <tag>`. This is automated execution of Design from RTL to GDS II. 
 
 # Interactive Mode
-flow.tcl -design <design> -tag <tag> -interactive
+`flow.tcl -design <design> -tag <tag> -interactive`. This is user friendly, manual execution of tools from RTL to GDS II.
 
 | Code | Corresponding Index |
  |     :---:      |     :---:      |
@@ -197,3 +198,44 @@ DRC checks are performed using `Magic` and `Klayout`. LVS Checks are performed u
 # GDS II Generation 
 After OpenLane execution the main outputs of the flow, are mainly GDSII and LEF views, which can be used in bigger designs and by foundry. `Magic` tool is used to stream out the final GDSII layout file from the routed def. `Klayout` tool is used to stream out the final GDSII layout file from the routed def as a back-up.
 
+# Conclusion
+We overviewed the key components of OpenLane, the only open-source EDA tool which is automated for manufacturing IC’s. We overviewed how OpenLane combines logic synthesis, placement and routing, as well as physical verification, with a manufacturing-ready open process development kit (PDK), we saw how EDA Tool practically performs IC design flow. OpenLane provides us to configure parameters by which optimal config for design can be found. It also has an option for regression run and various parameters can be compared. We executed RTL to GDSII Flow of 4-bit universal shift register. The final goal of our overall work is to understand VLSI design flow with a practical approach using the EDA tool. We can achieve 0 negative slack by varying various configuration parameters and changing clock period. Currently, OpenLane is the only open-source flow developed by Google and SkyWater which can be readily used to almost fully automate chip integration for the open PDK. This tool is useful for students who need practical experience in chip design.
+
+# References
+[1] `“OpenLANE”` https://github.com/The-OpenROAD-Project/OpenLane
+
+[2] `“SkyWater SKY130 PDK,”` https://skywater-pdk.readthedocs.io
+
+[3] Ahmed Alaa Ghazy, and Mohamed Shalan Efabless Corporation, San Jose, USA, “OpenLANE: The Open-Source Digital ASIC Implementation Flow”
+
+[4] `“LEF Technology file,”` https://youtu.be/OXrLdlz_4CM
+
+[5] `“DEF Technology file,”` https://youtu.be/Ze9Mc6j8nFY
+
+[6] `“LIB Technology file,”` https://youtu.be/0rFoqV8L0GM
+
+[7] `“Yosys,”` https://github.com/YosysHQ/yosys
+
+[8] `“OpenSTA,”` https://github.com/The-OpenROAD-Project/OpenSTA
+
+[9] `“Fault,”` https://github.com/Cloud-V/Fault
+
+[10] `“Design Flow,”` https://www.vlsiguide.com/search/label/Physical%20Design%20Flow
+
+[11] `“TritonRoute,”` https://github.com/The-OpenROAD-Project/TritonRoute
+
+[12] `“SPEF_EXTRACTOR,”` https://github.com/HanyMoussa/SPEF_EXTRACTOR
+
+[13] `“Magic VLSI,”` https://github.com/RTimothyEdwards/magic
+
+[14] `“KLayout,”` https://github.com/KLayout/klayout
+
+[15] `OpenLane Overview` https://youtu.be/d0hPdkYg5QI
+
+[16] `“OpenLANE Output,”` https://openlane.readthedocs.io/en/latest/#openlane-output
+
+[17] `“Config Parameters,”` https://openlane.readthedocs.io/en/develop/configuration/README.html
+
+
+# Acknowledgment
+I am extremely thankful to Dr. Ramesh Kini M Associate Professor NITK, Surathkal for sharing expertise, valuable guidance and encouragement and also providing this wonderful Internship opportunity to me.
