@@ -2,26 +2,26 @@
 This project give overview of RTL to GDSII of universal shift register using OpenLane and Skywater130 PDK. OpenLane is an automated open-source EDA tool which gives RTL to GDSII flow. 
 
 # Contents
-- [Desing and Test bench](#Desing-and-Test-bench)
-- [OpenLane Flow](#OpenLane-Flow)
-- [OpenLane VLSI Design Execution](#OpenLane-VLSI-Design-Execution)
-  * [Non-Interactive Mode](#Non-Interactive-Mode)
-  * [Interactive Mode](#Interactive-Mode)
-  * [Synthesis](#Synthesis)
-  * [Floorplan](#Floorplan)
-  * [Placement](#Placement)
-  * [Clock Tree Synthesis](#Clock-Tree-Synthesis)
-  * [Routing](#Routing)
-  * [Design Checks](#Design-Checks)
-  * [GDS II Generation](#GDS-II-Generation)
-- [Physical Design Issues](#Physical-Design-Issues)
-- [Conclusion](#Conclusion)
-- [References](#References)
-- [Acknowledgment](#Acknowledgment)
+- [1. Desing and Test bench](#1.-Desing-and-Test-bench)
+- [2. OpenLane Flow](#2.-OpenLane-Flow)
+- [3. OpenLane VLSI Design Execution](#3.-OpenLane-VLSI-Design-Execution)
+  * [3.1 Non-Interactive Mode](#3.1-Non-Interactive-Mode)
+  * [3.2 Interactive Mode](#3.2-Interactive-Mode)
+  * [3.3 Synthesis](#3.3-Synthesis)
+  * [3.4 Floorplan](#3.4-Floorplan)
+  * [3.5 Placement](#3.5-Placement)
+  * [3.6 Clock Tree Synthesis](#3.6-Clock-Tree-Synthesis)
+  * [3.7 Routing](#3.7-Routing)
+  * [3.8 Design Checks](#3.8-Design-Checks)
+  * [3.9 GDS II Generation](#3.9-GDS-II-Generation)
+- [4. Physical Design Issues](#4.-Physical-Design-Issues)
+- [5. Conclusion](#5.-Conclusion)
+- [6. References](#6.-References)
+- [7. Acknowledgment](#7.-Acknowledgment)
 
   
 
-# Desing and Test bench
+# 1. Desing and Test bench
 
 This is 1-bit Universal Shift Register, written using Flip-Flop with case statement (universal_shift_register_1bit).
 ![usr_1bit](https://user-images.githubusercontent.com/63975346/142893103-e208d580-2bd2-4e43-b369-9cc11f55f1f2.png)
@@ -89,7 +89,7 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 
 ![tb_wave_after_synth](https://user-images.githubusercontent.com/63975346/142900601-8cf55e84-14fe-4403-8acb-b41f88e2e04c.PNG)
 
-# OpenLane Flow
+# 2. OpenLane Flow
 
 | Index  | Input | Function | Output |
 |     :---:      |     :---:      |     :---:      |     :---:      |
@@ -140,13 +140,13 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 | Index42 | `cvcrc.sky130A`\, `usr_nbit.cdl`\, `cvc_usr_nbit.log` | Generating Final Summary Report | `final_summary_report.csv` |
 
 
-# OpenLane VLSI Design Execution
+# 3. OpenLane VLSI Design Execution
 `flow.tcl -design <design> -src <verilog file path> -init_design_config`. This code prepare design for execution.
 
-## Non-Interactive Mode
+## 3.1 Non-Interactive Mode
 `flow.tcl -design <design> -tag <tag>`. This is automated execution of Design from RTL to GDS II. Index1-Index42 run in automated mode.
 
-## Interactive Mode
+## 3.2 Interactive Mode
 `flow.tcl -design <design> -tag <tag> -interactive`. This is user friendly, manual execution of tools from RTL to GDS II.
 
 | Code | Corresponding Index |
@@ -171,7 +171,7 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 | `calc_total_runtime` | |
 | `generate_final_summary_report` | |
 
- ## Synthesis
+ ## 3.3 Synthesis
 `Yosys`, is a Verilog RTL synthesis framework that generates gate level netlist from verilog code and `abc` performs technology mapping. The resulting netlist is used by the `OpenSTA`  tool for static timing analysis, generating timing reports. OpenLane EDA tool comes with different synthesis scripts, Synthesis Exploration helps in picking the best synthesis strategy which will provide a netlist functionally same as input design.
  
 *Graphviz representation of design.*
@@ -213,7 +213,7 @@ sky130_fd_sc_hd__or2_2   --> X = A | B                            --> 2.30 x 2.7
 ```
    
 
-## Floorplan
+## 3.4 Floorplan
 For Good placement, the most important value would be `FP_CORE_UTIL` (area occupied by the standard cells, macros, and other cells), `FP_ASPECT_RATIO` (This ratio is determined by the horizontal routing resources to vertical routing resources (or) height/width). Before we proceed with floor planning, we need to ensure that all inputs we need for the floorplan are prepared properly. Because it deals with placement of I/O pads, macros, power, and ground structure. In addition to the macros core area, its rows (which is essential during placement) and its tracks (which is essential during routing) are defined by `init_fp` Macro inputs and outputs ports are placed by `ioplacer` and the `pdn` tool generates the power distribution network. `tapcell` tool used to insert `welltap` and `decap` cells in the floorplan.
  
  ```
@@ -244,7 +244,7 @@ For Good placement, the most important value would be `FP_CORE_UTIL` (area occup
  ```
 
 
-## Placement
+## 3.5 Placement
 Core area and rows of macros were determined in Floorplanning. The role of placement is to determine the locations of standard cells present in the netlist by placing these standard cells inside the core area of IC. A logical representation of the cells is in the Netlist. A tool places cells at the desired location based on the physical location of cells in LEF. Placement of cells is most important and challenging, because good placement minimises area and also ensures good routing. Lib file contains a number of the same kind of cells, so the tool picks the cell considering logic present in netlist and input constraints.
 The most important configure parameter for placement is `PL_TARGET_DESNSITY` which describes how close or how far cells are from each other and is easy to set. `PL_TARGET_DESNSITY` ranges from 0.0 to 1.0. It is the measure of how widely the cells would spread throughout the core area. The `RePLace` tool performs global placement. Resizer tool performs optional optimizations on the design. The `OpenPhySyn` tool performs timing optimizations on the design. `OpenDP` this tool legalizes global components by performing detailed placement.
  
@@ -258,10 +258,10 @@ The most important configure parameter for placement is `PL_TARGET_DESNSITY` whi
 
  
 
-## Clock Tree Synthesis
+## 3.6 Clock Tree Synthesis
 Clock Tree Synthesis ensures that all of the clock signals in a design are distributed evenly to all sequential circuits in a design. In CTS, skew and latency are minimized. The clock tree constraints and the placement data will be given as input to CTS. Output of CTS are Latency and skew report. CTS def, timing report and clock structure report is also generated after CTS. Clock tree building and clock tree balancing are done by CTS. `TritonCTS` tool is used to synthesize the clock distribution network (the clock tree). `TritonCTS` uses H-Tree Toplogy.
 
-## Routing 
+## 3.7 Routing 
 After CTS, routing is the stage at which the necessary interconnections are determined by finding the exact paths for each network. By the end of CTS, the tool will know the locations of cells, pins, IO ports, and pads. The logical connectivity and design rules are defined by netlist and technology files respectively and are available to the tool. Routing is the process after CTS in which interconnection of the macro pins, the standard cells, the pins of the block boundary, the pads of the chip boundary using technology files. All connections defined by the netlist are electrically connected using metal and vias in the routing stage. So, basically, routing is allocating a set of metal layers (wires) in the routing space that makes interconnections between all the nets in the netlist by ensuring certain design rules for the metals and vias. `FastRoute` tool performs global routing to generate a guide file for the detailed router. `CU-GR` is another option for performing global routing. The `TritonRoute` tool performs detailed routing. `SPEF-Extractor`, performs SPEF extraction.
 
 After Routing
@@ -377,20 +377,20 @@ Fanout     Cap    Slew   Delay    Time   Description
 ```
 
 
-## Design Checks
+## 3.8 Design Checks
 DRC checks are performed using `Magic` and `Klayout`. LVS Checks are performed using `Netgen`. Antenna Checks are performed by `Magic` and `CVC` performs Circuit Validity Checks.
 
-## GDS II Generation
+## 3.9 GDS II Generation
 After OpenLane execution the main outputs of the flow, are mainly GDSII and LEF views, which can be used in bigger designs and by foundry. `Magic` tool is used to stream out the final GDSII layout file from the routed def. `Klayout` tool is used to stream out the final GDSII layout file from the routed def as a back-up.
 ![usr_nbit gds](https://user-images.githubusercontent.com/63975346/142967009-a7a8531b-32fd-4f8f-9411-37c0aa6b234d.png)
 
-# Physical Design Issues
+# 4. Physical Design Issues
 The process of converting the gate-level netlist to layout is termed as physical design. In physical design, there are various stages of design, various mandatory checks in each stage and involved various analysis and verifications. There are multiple challenges as we move to advanced nodes in physical design. Here is the detailed explanation of [Physical Design Issues](https://github.com/harshithsn/Physical-Design-Issues)
 
-# Conclusion
+# 5. Conclusion
 We overviewed the key components of OpenLane, the only open-source EDA tool which is automated for manufacturing IC’s. We overviewed how OpenLane combines logic synthesis, placement and routing, as well as physical verification, with a manufacturing-ready open process development kit (PDK), we saw how EDA Tool practically performs IC design flow. OpenLane provides us to configure parameters by which optimal config for design can be found. It also has an option for regression run and various parameters can be compared. We executed RTL to GDSII Flow of 4-bit universal shift register. The final goal of our overall work is to understand VLSI design flow with a practical approach using the EDA tool. We can achieve 0 negative slack by varying various configuration parameters and changing clock period. Currently, OpenLane is the only open-source flow developed by Google and SkyWater which can be readily used to almost fully automate chip integration for the open PDK. This tool is useful for students who need practical experience in chip design.
 
-# References
+# 6. References
 [1] `“OpenLANE”` https://github.com/The-OpenROAD-Project/OpenLane
 
 [2] `“SkyWater SKY130 PDK,”` https://skywater-pdk.readthedocs.io
@@ -426,5 +426,5 @@ We overviewed the key components of OpenLane, the only open-source EDA tool whic
 [17] `“Config Parameters,”` https://openlane.readthedocs.io/en/develop/configuration/README.html
 
 
-# Acknowledgment
+# 7. Acknowledgment
 I am extremely thankful to Dr. Ramesh Kini M Associate Professor NITK, Surathkal for sharing expertise, valuable guidance and encouragement.
