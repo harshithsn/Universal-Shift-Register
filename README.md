@@ -16,7 +16,7 @@ This project give overview of RTL to GDSII of universal shift register using Ope
   * [3.9 GDS II Generation](#3.9-GDS-II-Generation)
 - [4. Physical Design Issues](#4.-Physical-Design-Issues)
 - [5. Conclusion](#5.-Conclusion)
-- [6 References](#6-References)
+- [6) References](#6\)-References)
 - [Acknowledgment](#Acknowledgment)
 
   
