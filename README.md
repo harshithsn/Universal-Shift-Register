@@ -17,7 +17,7 @@ This project give overview of RTL to GDSII of universal shift register using Ope
 - [4. Physical Design Issues](#4.-Physical-Design-Issues)
 - [5. Conclusion](#5.-Conclusion)
 - [6. References](#6.-References)
-- [7. Acknowledgment](#7.-Acknowledgment)
+- [Acknowledgment](#Acknowledgment)
 
   
 
@@ -426,5 +426,5 @@ We overviewed the key components of OpenLane, the only open-source EDA tool whic
 [17] `“Config Parameters,”` https://openlane.readthedocs.io/en/develop/configuration/README.html
 
 
-# 7. Acknowledgment
+# Acknowledgment
 I am extremely thankful to Dr. Ramesh Kini M Associate Professor NITK, Surathkal for sharing expertise, valuable guidance and encouragement.
