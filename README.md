@@ -37,6 +37,7 @@ This is 1-bit Universal Shift Register, written using Flip-Flop with case statem
 
 
 This is n-bit Universal Shift Register.
+![usr_nbit_0](https://user-images.githubusercontent.com/63975346/142893301-5a0a5bc6-86e7-42ac-aba9-e2eae45a7769.png)
 
 The `usr_nbit.v` contain 2 module `universal_shift_register_1bit` and `usr_nbit`. `usr_nbit` is the instantiated module of `universal_shift_register_1bit`, with variable size. The parameter size can be changed as per requirements. In this example I used `size=4` which means 4 bit universal shift register.
 
