@@ -16,7 +16,7 @@ This project give overview of RTL to GDSII of universal shift register using Ope
   * [3.9 GDS II Generation](#3.9-GDS-II-Generation)
 - [4. Physical Design Issues](#4.-Physical-Design-Issues)
 - [5. Conclusion](#5.-Conclusion)
-- [6) References](#6\)-References)
+- [6> References](#6>-References)
 - [Acknowledgment](#Acknowledgment)
 
   
@@ -390,7 +390,7 @@ The process of converting the gate-level netlist to layout is termed as physical
 # 5. Conclusion
 We overviewed the key components of OpenLane, the only open-source EDA tool which is automated for manufacturing IC’s. We overviewed how OpenLane combines logic synthesis, placement and routing, as well as physical verification, with a manufacturing-ready open process development kit (PDK), we saw how EDA Tool practically performs IC design flow. OpenLane provides us to configure parameters by which optimal config for design can be found. It also has an option for regression run and various parameters can be compared. We executed RTL to GDSII Flow of 4-bit universal shift register. The final goal of our overall work is to understand VLSI design flow with a practical approach using the EDA tool. We can achieve 0 negative slack by varying various configuration parameters and changing clock period. Currently, OpenLane is the only open-source flow developed by Google and SkyWater which can be readily used to almost fully automate chip integration for the open PDK. This tool is useful for students who need practical experience in chip design.
 
-# 6) References
+# 6> References
 [1] `“OpenLANE”` https://github.com/The-OpenROAD-Project/OpenLane
 
 [2] `“SkyWater SKY130 PDK,”` https://skywater-pdk.readthedocs.io
