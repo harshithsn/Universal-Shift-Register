@@ -366,8 +366,7 @@ Slack = Required Time – Arrival Time
 
 Slack met
 
-<br />
-<br />
+
 <br />
 
 **Setup Time Analysis:-** The minimum amount of time before the clock’s active edge that the data must be stable for it to be latched correctly.
@@ -466,8 +465,6 @@ Slack = Required Time – Arrival Time
 
 Slack met
 
-<br />
-<br />
 <br />
 
 ## 3.8 Design Checks
