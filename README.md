@@ -5,15 +5,15 @@ This project give overview of RTL to GDSII of universal shift register using Ope
 - [1 Desing and Test bench](#1-Desing-and-Test-bench)
 - [2 OpenLane Flow](#2-OpenLane-Flow)
 - [3 OpenLane VLSI Design Execution](#3-OpenLane-VLSI-Design-Execution)
-  * [3a Non-Interactive Mode](#3a-Non-Interactive-Mode)
-  * [3b Interactive Mode](#3b-Interactive-Mode)
-  * [3c Synthesis](#3c-Synthesis)
-  * [3d Floorplan](#3d-Floorplan)
-  * [3e Placement](#3e-Placement)
-  * [3f Clock Tree Synthesis](#3f-Clock-Tree-Synthesis)
-  * [3g Routing](#3g-Routing)
-  * [3h Design Checks](#3h-Design-Checks)
-  * [3i GDS II Generation](#3i-GDS-II-Generation)
+  * [3.1 Non-Interactive Mode](#3.1-Non-Interactive-Mode)
+  * [3.2 Interactive Mode](#3.2-Interactive-Mode)
+  * [3.3 Synthesis](#3.3-Synthesis)
+  * [3.4 Floorplan](#3.4-Floorplan)
+  * [3.5 Placement](#3.5-Placement)
+  * [3.6 Clock Tree Synthesis](#3.6-Clock-Tree-Synthesis)
+  * [3.7 Routing](#3.7-Routing)
+  * [3.8 Design Checks](#3.8-Design-Checks)
+  * [3.9 GDS II Generation](#3.9-GDS-II-Generation)
 - [4 Physical Design Issues](#4-Physical-Design-Issues)
 - [5 Conclusion](#5-Conclusion)
 - [6 References](#6-References)
@@ -144,10 +144,10 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 # 3 OpenLane VLSI Design Execution
 `flow.tcl -design <design> -src <verilog file path> -init_design_config`. This code prepare design for execution.
 
-## 3a Non-Interactive Mode
+## 3.1 Non-Interactive Mode
 `flow.tcl -design <design> -tag <tag>`. This is automated execution of Design from RTL to GDS II. Index1-Index42 run in automated mode.
 
-## 3b Interactive Mode
+## 3.2 Interactive Mode
 `flow.tcl -design <design> -tag <tag> -interactive`. This is user friendly, manual execution of tools from RTL to GDS II.
 
 | Code | Corresponding Index |
@@ -172,7 +172,7 @@ I modified the netlist generated after synthesis (`usr_nbit.synthesis.v`) and ve
 | `calc_total_runtime` | |
 | `generate_final_summary_report` | |
 
- ## 3c Synthesis
+ ## 3.3 Synthesis
 `Yosys`, is a Verilog RTL synthesis framework that generates gate level netlist from verilog code and `abc` performs technology mapping. The resulting netlist is used by the `OpenSTA`  tool for static timing analysis, generating timing reports. OpenLane EDA tool comes with different synthesis scripts, Synthesis Exploration helps in picking the best synthesis strategy which will provide a netlist functionally same as input design.
  
 *Graphviz representation of design.*
@@ -214,7 +214,7 @@ sky130_fd_sc_hd__or2_2   --> X = A | B                            --> 2.30 x 2.7
 ```
    
 
-## 3d Floorplan
+## 3.4 Floorplan
 For Good placement, the most important value would be `FP_CORE_UTIL` (area occupied by the standard cells, macros, and other cells), `FP_ASPECT_RATIO` (This ratio is determined by the horizontal routing resources to vertical routing resources (or) height/width). Before we proceed with floor planning, we need to ensure that all inputs we need for the floorplan are prepared properly. Because it deals with placement of I/O pads, macros, power, and ground structure. In addition to the macros core area, its rows (which is essential during placement) and its tracks (which is essential during routing) are defined by `init_fp` Macro inputs and outputs ports are placed by `ioplacer` and the `pdn` tool generates the power distribution network. `tapcell` tool used to insert `welltap` and `decap` cells in the floorplan.
  
  ```
@@ -245,7 +245,7 @@ For Good placement, the most important value would be `FP_CORE_UTIL` (area occup
  ```
 
 
-## 3e Placement
+## 3.5 Placement
 Core area and rows of macros were determined in Floorplanning. The role of placement is to determine the locations of standard cells present in the netlist by placing these standard cells inside the core area of IC. A logical representation of the cells is in the Netlist. A tool places cells at the desired location based on the physical location of cells in LEF. Placement of cells is most important and challenging, because good placement minimises area and also ensures good routing. Lib file contains a number of the same kind of cells, so the tool picks the cell considering logic present in netlist and input constraints.
 The most important configure parameter for placement is `PL_TARGET_DESNSITY` which describes how close or how far cells are from each other and is easy to set. `PL_TARGET_DESNSITY` ranges from 0.0 to 1.0. It is the measure of how widely the cells would spread throughout the core area. The `RePLace` tool performs global placement. Resizer tool performs optional optimizations on the design. The `OpenPhySyn` tool performs timing optimizations on the design. `OpenDP` this tool legalizes global components by performing detailed placement.
  
@@ -259,10 +259,10 @@ The most important configure parameter for placement is `PL_TARGET_DESNSITY` whi
 
  
 
-## 3f Clock Tree Synthesis
+## 3.6 Clock Tree Synthesis
 Clock Tree Synthesis ensures that all of the clock signals in a design are distributed evenly to all sequential circuits in a design. In CTS, skew and latency are minimized. The clock tree constraints and the placement data will be given as input to CTS. Output of CTS are Latency and skew report. CTS def, timing report and clock structure report is also generated after CTS. Clock tree building and clock tree balancing are done by CTS. `TritonCTS` tool is used to synthesize the clock distribution network (the clock tree). `TritonCTS` uses H-Tree Toplogy.
 
-## 3g Routing 
+## 3.7 Routing 
 After CTS, routing is the stage at which the necessary interconnections are determined by finding the exact paths for each network. By the end of CTS, the tool will know the locations of cells, pins, IO ports, and pads. The logical connectivity and design rules are defined by netlist and technology files respectively and are available to the tool. Routing is the process after CTS in which interconnection of the macro pins, the standard cells, the pins of the block boundary, the pads of the chip boundary using technology files. All connections defined by the netlist are electrically connected using metal and vias in the routing stage. So, basically, routing is allocating a set of metal layers (wires) in the routing space that makes interconnections between all the nets in the netlist by ensuring certain design rules for the metals and vias. `FastRoute` tool performs global routing to generate a guide file for the detailed router. `CU-GR` is another option for performing global routing. The `TritonRoute` tool performs detailed routing. `SPEF-Extractor`, performs SPEF extraction.
 
 After Routing
@@ -292,7 +292,10 @@ up-via summary (total 266):
                    266
 ```
 
-Static Timming Analysis after Routing.
+### Static Timming Analysis after Routing.
+**Hold Time Analysis:-** The minimum amount of time after the active edge of the clock during which the data must be stable.
+
+
 ```
 Startpoint: _39_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _39_ (rising edge-triggered flip-flop clocked by clk)
@@ -324,7 +327,53 @@ Fanout     Cap    Slew   Delay    Time   Description
 -----------------------------------------------------------------------------
                                   0.28   slack (MET)
 
+```
+![STA_hold](https://user-images.githubusercontent.com/63975346/143566522-ddae62ee-5ca4-4642-85a8-da6f7d93afe4.png)
 
+T<sub>c2q</sub> + T<sub>comb</sub>  \<  T<sub>Hold</sub> + T<sub>skew</sub>
+
+<br />
+
+T<sub>skew</sub> = T<sub>capture</sub> - T<sub>launch</sub>
+
+<br />
+
+Arrival Time = T<sub>c2q</sub> + T<sub>comb</sub> + T<sub>launch</sub>
+
+   = T<sub>c2q</sub> + T<sub>o221a_1</sub> + T<sub>launch</sub>
+
+   = 0.18 + 0.08 + 0.00
+
+   = 0.26
+
+<br />
+
+Required Time = T<sub>Hold</sub> + T<sub>capture</sub>
+
+   = 0.02 + 0.00
+
+   = 0.02
+
+<br />
+
+Slack = Required Time – Arrival Time
+
+   = 0.02 – (-0.26)
+
+   = 0.28
+
+<br />
+
+Slack met
+
+<br />
+<br />
+<br />
+
+**Setup Time Analysis:-** The minimum amount of time before the clock’s active edge that the data must be stable for it to be latched correctly.
+
+
+```
 Startpoint: select[0] (input port clocked by clk)
 Endpoint: _39_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -374,14 +423,57 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   5.62   slack (MET)
 
 
-
 ```
 
+![STA_setup](https://user-images.githubusercontent.com/63975346/143566591-a9e2d7a6-9bbc-40b7-af4b-56aeaecc74af.png)
 
-## 3h Design Checks
+
+T<sub>c2q</sub> + T<sub>comb</sub>  \<  T<sub>Period</sub> - T<sub>Setup</sub> + T<sub>skew</sub>
+
+<br />
+
+T<sub>skew</sub> = T<sub>capture</sub> - T<sub>launch</sub>
+
+<br />
+
+Arrival Time = T<sub>c2q</sub> + T<sub>comb</sub> + T<sub>launch</sub>
+
+   = T<sub>input external delay</sub> + T<sub>clkbuf_1</sub> + T<sub>clkbuf_2</sub> + T<sub>inv_2</sub> + T<sub>nor2_2</sub> + T<sub>a32o_1</sub> + T<sub>mux2_1</sub> + T<sub>o221a_1</sub>
+
+   = 2.00 + 0.15 + 0.18 + 0.15 + 0.12 + 0.37 + 0.64 + 0.49
+
+   = 4.1
+
+<br />
+
+Required Time = T<sub>Period</sub> + T<sub>Setup</sub> + T<sub>capture</sub>
+
+   = T<sub>Period</sub> + T<sub>Setup</sub> + T<sub>capture</sub>
+
+   = 10.00 – 0.30
+
+   = 9.7
+
+<br />
+
+Slack = Required Time – Arrival Time
+
+   = 9.7 – 4.1
+
+   = 5.6
+
+<br />
+
+Slack met
+
+<br />
+<br />
+<br />
+
+## 3.8 Design Checks
 DRC checks are performed using `Magic` and `Klayout`. LVS Checks are performed using `Netgen`. Antenna Checks are performed by `Magic` and `CVC` performs Circuit Validity Checks.
 
-## 3i GDS II Generation
+## 3.9 GDS II Generation
 After OpenLane execution the main outputs of the flow, are mainly GDSII and LEF views, which can be used in bigger designs and by foundry. `Magic` tool is used to stream out the final GDSII layout file from the routed def. `Klayout` tool is used to stream out the final GDSII layout file from the routed def as a back-up.
 ![usr_nbit gds](https://user-images.githubusercontent.com/63975346/142967009-a7a8531b-32fd-4f8f-9411-37c0aa6b234d.png)
 
